@@ -2,9 +2,11 @@
   "name": "crawler",
   "version": "0.0.1",
   "description": "",
-  "author": "",
+  "author": "UniqueNetwork",
   "private": true,
-  "license": "UNLICENSED",
+  "license": "MIT",
+  "main": "dist/index",
+  "types": "dist/index",
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "nest build",
