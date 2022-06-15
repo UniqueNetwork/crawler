@@ -1,5 +1,5 @@
 import { CrawlerModule } from './crawler.module';
-import { RandomService } from './random.service';
-import { RandomServiceOptions } from './random-service-options';
+import { CrawlerApiService } from './crawler-api/crawler-api.service';
+import { CrawlerApiServiceOptions } from './crawler-api/crawler-api-service-options';
 
-export { CrawlerModule, RandomService, RandomServiceOptions };
+export { CrawlerModule, CrawlerApiService, CrawlerApiServiceOptions };

@@ -1,6 +1,6 @@
 export interface RandomServiceOptions {
-  min: number;
-  max: number;
+  min?: number;
+  max?: number;
 }
 
 export const defaultRandomServiceOptions: RandomServiceOptions = {

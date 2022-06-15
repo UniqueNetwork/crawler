@@ -1,21 +1,29 @@
 import { DynamicModule, Logger, Module } from '@nestjs/common';
-import { RandomService } from './random.service';
-import { RandomServiceOptions } from './random-service-options';
+import { CrawlerApiService } from './crawler-api/crawler-api.service';
+import { CrawlerApiServiceOptions } from './crawler-api/crawler-api-service-options';
+import { RandomService } from './random/random.service';
 
-const randomServiceFactory = (options: Partial<RandomServiceOptions>) => {
+const crawlerApiServiceFactory = (
+  options: Partial<CrawlerApiServiceOptions>,
+) => {
   return {
-    provide: RandomService,
-    useFactory: (logger: Logger) => {
-      return new RandomService(options, logger);
+    provide: CrawlerApiService,
+    useFactory: (logger: Logger, randomService: RandomService) => {
+      return new CrawlerApiService(options, logger, randomService);
     },
-    inject: [Logger],
+    inject: [Logger, RandomService],
   };
 };
 
-@Module({})
+/**
+ * Module usage: https://github.com/chernetsky/crawler-usage
+ */
+@Module({
+  providers: [RandomService],
+})
 export class CrawlerModule {
-  static forRoot(options: Partial<RandomServiceOptions>): DynamicModule {
-    const providers = [randomServiceFactory(options)];
+  static forRoot(options: Partial<CrawlerApiServiceOptions>): DynamicModule {
+    const providers = [crawlerApiServiceFactory(options)];
 
     return {
       providers: providers,
