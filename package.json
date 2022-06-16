@@ -4,7 +4,7 @@
   "description": "",
   "author": "UniqueNetwork",
   "private": true,
-  "license": "MIT",
+  "license": "MIT ",
   "main": "dist/index",
   "types": "dist/index",
   "scripts": {
@@ -26,6 +26,11 @@
     "@nestjs/common": "^8.0.0",
     "@nestjs/core": "^8.0.0",
     "@nestjs/platform-express": "^8.0.0",
+    "@polkadot/api": "^8.8.2",
+    "@polkadot/keyring": "^9.4.1",
+    "@polkadot/types": "^8.8.2",
+    "@polkadot/util": "^9.4.1",
+    "@unique-nft/types": "^0.6.0-4",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^7.2.0"

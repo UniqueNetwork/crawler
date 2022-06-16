@@ -3,6 +3,7 @@ import { CrawlerApiService } from './crawler-api/crawler-api.service';
 import { CrawlerApiServiceOptions } from './crawler-api/crawler-api-service-options';
 import { RandomService } from './random/random.service';
 import { ConfigService } from './config/config.service';
+import { PolkadotApiService } from './polkadot-api/polkadot-api.service';
 
 const configServiceFactory = (options: Partial<CrawlerApiServiceOptions>) => {
   return {
@@ -17,7 +18,7 @@ const configServiceFactory = (options: Partial<CrawlerApiServiceOptions>) => {
  * Module usage: https://github.com/chernetsky/crawler-usage
  */
 @Module({
-  providers: [CrawlerApiService, RandomService, Logger],
+  providers: [CrawlerApiService, RandomService, Logger, PolkadotApiService],
 })
 export class CrawlerModule {
   static forRoot(options: Partial<CrawlerApiServiceOptions>): DynamicModule {
