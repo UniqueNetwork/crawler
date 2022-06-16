@@ -6,7 +6,7 @@ import { ImplementOpalAPI } from './bridgeProviderAPI/implement/implementOpalAPI
 import { ImplementTestnetAPI } from './bridgeProviderAPI/implement/implemnetTestnetAPI';
 
 export class BridgeAPI {
-  constructor(private typeProvider: TypeProvider, private api: ApiPromise) {}
+  constructor(private api: ApiPromise, private typeProvider: TypeProvider) {}
 
   get bridgeAPI() {
     switch (this.typeProvider) {

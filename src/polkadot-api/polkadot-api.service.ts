@@ -7,7 +7,7 @@ import { ApiPromise } from '@polkadot/api';
 
 @Injectable()
 export class PolkadotApiService {
-  private api: ApiPromise;
+  private _api: ApiPromise;
 
   private typeProvider: TypeProvider;
 
@@ -22,11 +22,13 @@ export class PolkadotApiService {
       ? TypeProvider[process.env.TYPE_PROVIDER.toUpperCase()]
       : TypeProvider.TESTNET2;
 
-    console.log(wsUrl, this.typeProvider);
-
     this.getPolkadotAPI(wsUrl, runtimeTypes).then((result) => {
-      this.api = result;
+      this._api = result;
     });
+  }
+
+  get api() {
+    return this._api;
   }
 
   private async getPolkadotAPI(wsUrl, rtt) {
