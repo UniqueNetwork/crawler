@@ -8,20 +8,10 @@ import {
 
 @Injectable()
 export class CrawlerApiService {
-  private options: CrawlerApiServiceOptions;
-
   constructor(
-    options: Partial<CrawlerApiServiceOptions>,
     private readonly logger: Logger,
     private readonly randomService: RandomService,
-  ) {
-    this.options = { ...defaultCrawlerServiceOptions, ...options };
-
-    // todo: Init chain connection
-    // todo: and pass this.api object into dependencies?
-    // todo: I don't like this kind of initialiszation.
-    this.randomService.init(options, logger);
-  }
+  ) {}
 
   subscribeNewBlocks(): Observable<number> {
     this.logger.log('subscribeNewBlocks()');

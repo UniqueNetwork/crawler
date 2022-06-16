@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '../config/config.service';
 import {
   defaultRandomServiceOptions,
   RandomServiceOptions,
@@ -6,20 +7,18 @@ import {
 
 @Injectable()
 export class RandomService {
-  private options: RandomServiceOptions;
-  private logger: Logger;
-
-  init(options: Partial<RandomServiceOptions>, logger: Logger) {
-    this.options = { ...defaultRandomServiceOptions, ...options };
-    this.logger = logger;
-  }
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly logger: Logger,
+  ) {}
 
   generate(): number {
-    this.logger.log(
-      `Running the random number service between ${this.options.min} and ${this.options.max}`,
-    );
+    const max = Number(this.configService.getOption('max'));
+    const min = Number(this.configService.getOption('min'));
 
-    const range = this.options.max - this.options.min;
-    return this.options.min + Math.floor(Math.random() * range);
+    this.logger.log(`Generate in range [${min}, ${max}]`, 'RandomService');
+
+    const range = max - min;
+    return min + Math.floor(Math.random() * range);
   }
 }
