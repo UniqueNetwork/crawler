@@ -9,9 +9,7 @@ export class CrawlerApiService {
     private readonly blockListenerService: BlockListenerService,
   ) {}
 
-  subscribeNewBlocks(): Observable<unknown> {
-    this.logger.verbose('subscribeNewBlocks()', 'CrawlerApiService');
-
+  subscribeNewBlocks(): Promise<Observable<unknown>> {
     return this.blockListenerService.startListening();
   }
 }

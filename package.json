@@ -31,6 +31,7 @@
     "@polkadot/types": "^8.8.2",
     "@polkadot/util": "^9.4.1",
     "@unique-nft/types": "^0.6.0-4",
+    "lodash": "^4.17.21",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^7.2.0"

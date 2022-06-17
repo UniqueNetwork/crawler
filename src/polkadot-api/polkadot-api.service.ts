@@ -8,6 +8,8 @@ import { wait } from '../utils';
 export class PolkadotApiService {
   private _api: ApiPromise;
 
+  isReady: Promise<boolean>;
+
   constructor(
     private readonly configService: ConfigService,
     private readonly logger: Logger,
@@ -15,8 +17,12 @@ export class PolkadotApiService {
   ) {
     const wsUrl = this.configService.getOption('wsProviderUrl');
 
-    this.getPolkadotAPI(wsUrl).then((result) => {
-      this._api = result;
+    this.isReady = new Promise((resolve) => {
+      this.getPolkadotAPI(wsUrl).then((result) => {
+        this._api = result;
+
+        resolve(true);
+      });
     });
   }
 
@@ -65,6 +71,7 @@ export class PolkadotApiService {
     if (node && node.isSyncing.eq(false)) {
       // Node is synced!
       log.verbose('Node is synced!');
+
       return api;
     }
 
