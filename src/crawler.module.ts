@@ -5,7 +5,7 @@ import { RandomService } from './random/random.service';
 import { ConfigService } from './config/config.service';
 import { PolkadotApiService } from './polkadot-api/polkadot-api.service';
 import { BlockListenerService } from './listeners/block-listener.service';
-import { OpalApiProvider } from './polkadot-api/providerAPI/opal-api.provider';
+import { OpalApiProvider } from './polkadot-api/providers/opal-api.provider';
 
 const configServiceFactory = (options: Partial<CrawlerApiServiceOptions>) => {
   return {

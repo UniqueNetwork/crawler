@@ -9,7 +9,7 @@ export class BlockListenerService {
   ) {}
 
   async startListening(): Promise<void> {
-    // this.logger.info('Block listening was started');
+    // todo: Check api connection status
     await this.apiService.api.rpc.chain.subscribeNewHeads(async (header) => {
       const blockNumber = header.number.toNumber();
 

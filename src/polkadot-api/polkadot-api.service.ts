@@ -1,7 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ApiPromise } from '@polkadot/api';
 import { ConfigService } from '../config/config.service';
-import { OpalApiProvider } from './providerAPI/opal-api.provider';
+import { OpalApiProvider } from './providers/opal-api.provider';
+import { wait } from '../utils';
 
 @Injectable()
 export class PolkadotApiService {
@@ -24,12 +25,6 @@ export class PolkadotApiService {
   }
 
   private async getPolkadotAPI(wsUrl) {
-    async function wait(ms) {
-      return new Promise((resolve) => {
-        setTimeout(resolve, ms);
-      });
-    }
-
     const log = this.logger;
 
     log.verbose(`Connecting to ${wsUrl}`);
