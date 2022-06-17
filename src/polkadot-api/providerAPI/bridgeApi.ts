@@ -1,5 +1,5 @@
 import { ApiPromise } from '@polkadot/api';
-import { TypeProvider } from './type/provider';
+import { TypeProvider } from '../../constants';
 import { OpalAPI } from './bridgeProviderAPI/concreate/opalAPI';
 import { TestnetAPI } from './bridgeProviderAPI/concreate/testnetAPI';
 import { ImplementOpalAPI } from './bridgeProviderAPI/implement/implementOpalAPI';

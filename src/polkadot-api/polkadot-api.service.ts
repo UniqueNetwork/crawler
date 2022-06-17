@@ -1,28 +1,20 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '../config/config.service';
-import { ProviderFactory } from './providerAPI/providerAPI';
-import { TypeProvider } from './providerAPI/type/provider';
-import runtimeTypes from '../config/runtime_types.json';
 import { ApiPromise } from '@polkadot/api';
+import { ConfigService } from '../config/config.service';
+import { OpalApiProvider } from './providerAPI/opal-api.provider';
 
 @Injectable()
 export class PolkadotApiService {
   private _api: ApiPromise;
 
-  private typeProvider: TypeProvider;
-
   constructor(
     private readonly configService: ConfigService,
     private readonly logger: Logger,
+    private readonly apiProvider: OpalApiProvider,
   ) {
     const wsUrl = this.configService.getOption('wsProviderUrl');
-    const typeProvider = this.configService.getOption('typeProvider');
 
-    this.typeProvider = typeProvider
-      ? TypeProvider[process.env.TYPE_PROVIDER.toUpperCase()]
-      : TypeProvider.TESTNET2;
-
-    this.getPolkadotAPI(wsUrl, runtimeTypes).then((result) => {
+    this.getPolkadotAPI(wsUrl).then((result) => {
       this._api = result;
     });
   }
@@ -31,7 +23,7 @@ export class PolkadotApiService {
     return this._api;
   }
 
-  private async getPolkadotAPI(wsUrl, rtt) {
+  private async getPolkadotAPI(wsUrl) {
     async function wait(ms) {
       return new Promise((resolve) => {
         setTimeout(resolve, ms);
@@ -41,8 +33,10 @@ export class PolkadotApiService {
     const log = this.logger;
 
     log.verbose(`Connecting to ${wsUrl}`);
-    const provider = new ProviderFactory(wsUrl, this.typeProvider);
-    const api = await provider.getApi(rtt);
+
+    await this.apiProvider.init(wsUrl);
+
+    const api = this.apiProvider.getApi();
 
     api.on('error', async (value) => {
       log.error(value);
@@ -78,8 +72,11 @@ export class PolkadotApiService {
       log.verbose('Node is synced!');
       return api;
     }
+
     log.verbose('Node is not synced! Waiting 10s...');
+
     api.disconnect();
+
     await wait(10000);
 
     return api;

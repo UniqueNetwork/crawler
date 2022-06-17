@@ -5,6 +5,7 @@ import { RandomService } from './random/random.service';
 import { ConfigService } from './config/config.service';
 import { PolkadotApiService } from './polkadot-api/polkadot-api.service';
 import { BlockListenerService } from './listeners/block-listener.service';
+import { OpalApiProvider } from './polkadot-api/providerAPI/opal-api.provider';
 
 const configServiceFactory = (options: Partial<CrawlerApiServiceOptions>) => {
   return {
@@ -20,11 +21,12 @@ const configServiceFactory = (options: Partial<CrawlerApiServiceOptions>) => {
  */
 @Module({
   providers: [
-    CrawlerApiService,
-    RandomService,
     Logger,
+    RandomService,
+    OpalApiProvider,
     PolkadotApiService,
     BlockListenerService,
+    CrawlerApiService,
   ],
 })
 export class CrawlerModule {
