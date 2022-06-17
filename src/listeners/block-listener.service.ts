@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { Observable } from 'rxjs';
 import { PolkadotApiService } from '../polkadot-api/polkadot-api.service';
 
 @Injectable()
@@ -8,15 +9,21 @@ export class BlockListenerService {
     private apiService: PolkadotApiService,
   ) {}
 
-  async startListening(): Promise<void> {
-    // todo: Check api connection status
-    await this.apiService.api.rpc.chain.subscribeNewHeads(async (header) => {
-      const blockNumber = header.number.toNumber();
+  startListening(): Observable<unknown> {
+    // todo: Check api connection status first
 
-      this.logger.verbose(
-        `Got new block ${blockNumber}`,
-        'BlockListenerService',
-      );
+    return new Observable((subscriber) => {
+      this.apiService.api.rpc.chain.subscribeNewHeads(async (header) => {
+        // console.log(header);
+        const blockNumber = header.number.toNumber();
+
+        this.logger.verbose(
+          `Got new block ${blockNumber}`,
+          'BlockListenerService',
+        );
+
+        subscriber.next(blockNumber);
+      });
     });
   }
 }

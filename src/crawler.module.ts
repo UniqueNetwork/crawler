@@ -1,7 +1,6 @@
 import { DynamicModule, Logger, Module } from '@nestjs/common';
 import { CrawlerApiService } from './crawler-api/crawler-api.service';
 import { CrawlerApiServiceOptions } from './crawler-api/crawler-api-service-options';
-import { RandomService } from './random/random.service';
 import { ConfigService } from './config/config.service';
 import { PolkadotApiService } from './polkadot-api/polkadot-api.service';
 import { BlockListenerService } from './listeners/block-listener.service';
@@ -22,7 +21,6 @@ const configServiceFactory = (options: Partial<CrawlerApiServiceOptions>) => {
 @Module({
   providers: [
     Logger,
-    RandomService,
     OpalApiProvider,
     PolkadotApiService,
     BlockListenerService,

@@ -1,6 +1,4 @@
-import { RandomServiceOptions } from '../random/random-service-options';
-
-export interface CrawlerApiServiceOptions extends RandomServiceOptions {
+export interface CrawlerApiServiceOptions {
   wsProviderUrl: string;
 }
 
