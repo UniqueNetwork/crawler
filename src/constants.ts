@@ -27,3 +27,5 @@ export enum EventSection {
   BALANCES = 'balances',
   TREASURY = 'treasury',
 }
+
+export const CONFIG_OPTIONS = 'CONFIG_OPTIONS';

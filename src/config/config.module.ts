@@ -1,4 +1,5 @@
 import { DynamicModule, Module } from '@nestjs/common';
+import { CONFIG_OPTIONS } from '../constants';
 import {
   CrawlerApiServiceOptions,
   defaultCrawlerServiceOptions,
@@ -11,7 +12,7 @@ export class ConfigModule {
     return {
       providers: [
         {
-          provide: 'CONFIG_OPTIONS',
+          provide: CONFIG_OPTIONS,
           useValue: { ...defaultCrawlerServiceOptions, ...options },
         },
         ConfigService,
