@@ -1,39 +1,21 @@
 import { DynamicModule, Logger, Module } from '@nestjs/common';
 import { CrawlerApiService } from './crawler-api/crawler-api.service';
 import { CrawlerApiServiceOptions } from './crawler-api/crawler-api-service-options';
-import { ConfigService } from './config/config.service';
-import { PolkadotApiService } from './polkadot-api/polkadot-api.service';
-import { BlockListenerService } from './listeners/block-listener.service';
-import { OpalApiProvider } from './polkadot-api/providers/opal-api.provider';
-
-const configServiceFactory = (options: Partial<CrawlerApiServiceOptions>) => {
-  return {
-    provide: ConfigService,
-    useFactory: () => {
-      return new ConfigService(options);
-    },
-  };
-};
+import { ConfigModule } from './config/config.module';
+import { ListenersModule } from './listeners/listeners.module';
 
 /**
  * Module usage: https://github.com/chernetsky/crawler-usage
  */
 @Module({
-  providers: [
-    Logger,
-    OpalApiProvider,
-    PolkadotApiService,
-    BlockListenerService,
-    CrawlerApiService,
-  ],
+  imports: [ListenersModule],
+  providers: [Logger, CrawlerApiService],
+  exports: [CrawlerApiService],
 })
 export class CrawlerModule {
   static forRoot(options: Partial<CrawlerApiServiceOptions>): DynamicModule {
-    const providers = [configServiceFactory(options)];
-
     return {
-      providers: providers,
-      exports: [CrawlerApiService],
+      imports: [ConfigModule.forRoot(options)],
       module: CrawlerModule,
     };
   }

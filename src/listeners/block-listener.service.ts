@@ -11,6 +11,7 @@ export class BlockListenerService {
   ) {}
 
   get api() {
+    // todo: Should encapsulate all sraight api calls into apiService methods.
     return this.apiService.api;
   }
 
