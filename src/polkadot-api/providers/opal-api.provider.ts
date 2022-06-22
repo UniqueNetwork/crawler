@@ -1,8 +1,8 @@
-/// <reference types="@unique-nft/types/augment-api-rpc" />
+/// <reference types="@unique-nft/unique-mainnet-types/augment-api-rpc" />
 import { Injectable } from '@nestjs/common';
 import { ApiPromise } from '@polkadot/api';
 import { WsProvider } from '@polkadot/rpc-provider';
-import { unique } from '@unique-nft/types/definitions';
+import { unique } from '@unique-nft/unique-mainnet-types/definitions';
 
 @Injectable()
 export class OpalApiProvider {

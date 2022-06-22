@@ -4,7 +4,7 @@
   "description": "",
   "author": "UniqueNetwork",
   "private": true,
-  "license": "MIT ",
+  "license": "MIT",
   "main": "dist/index",
   "types": "dist/index",
   "scripts": {
@@ -30,7 +30,7 @@
     "@polkadot/keyring": "^9.4.1",
     "@polkadot/types": "^8.8.2",
     "@polkadot/util": "^9.4.1",
-    "@unique-nft/types": "^0.6.0-4",
+    "@unique-nft/unique-mainnet-types": "^0.6.2",
     "lodash": "^4.17.21",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",

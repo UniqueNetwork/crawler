@@ -24,7 +24,7 @@ export class BlockListenerService {
     }
   }
 
-  private async getBlockData(blockNumber) {
+  private async getBlockData(blockNumber: number) {
     const blockHash = await this.api.rpc.chain.getBlockHash(blockNumber);
 
     const [rawBlock, rawRuntimeVersion, rawEvents, rawTotalIssuance] =
