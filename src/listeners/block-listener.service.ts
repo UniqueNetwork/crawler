@@ -19,12 +19,17 @@ export class BlockListenerService {
   }
 
   private getTimestampFromExtrinsics(extrinsics) {
+    let timestamp = 0;
+
     for (const extrinsic of extrinsics) {
       const { method } = extrinsic;
       if (method.section === 'timestamp' && method.method === 'set') {
-        return method.toJSON().args.now;
+        timestamp = method.toJSON().args.now;
+        break;
       }
     }
+
+    return timestamp;
   }
 
   private parseEventAmount({ phase, method, data, section }) {
@@ -63,19 +68,42 @@ export class BlockListenerService {
     return result;
   }
 
-  private parseEventRecord(rawEvent) {
+  private parseEventRecord(rawRecord) {
     const {
       event: { index, method, section, data: rawData },
       phase,
-    } = rawEvent;
+    } = rawRecord;
+
+    const phaseToHuman = phase.toHuman();
 
     const result = {
       method,
       section,
       index: index.toHuman(),
-      phase: phase.toHuman(),
+      phase: phaseToHuman,
       data: rawData.toHuman(),
+      extrinsicIndex:
+        typeof phaseToHuman === 'object' ? phase.toJSON().applyExtrinsic : null,
       amount: this.parseEventAmount({ phase, method, section, data: rawData }),
+    };
+
+    return result;
+  }
+
+  private parseExtrinsicRecord(rawRecord, index) {
+    const {
+      method: { section, method },
+      isSigned,
+    } = rawRecord.toHuman();
+
+    const result = {
+      index,
+      section,
+      method,
+      isSigned,
+      signer: isSigned ? rawRecord.signer.toString() : null,
+      // args: JSON.stringify(rawRecord.args), // todo: Do we really need these args?
+      hash: rawRecord.hash.toHex(),
     };
 
     return result;
@@ -100,11 +128,15 @@ export class BlockListenerService {
       this.parseEventRecord.bind(this),
     );
 
+    const parsedExtrinsics = (
+      rawBlock.block.extrinsics as unknown as Array<unknown>
+    ).map(this.parseExtrinsicRecord.bind(this));
+
     const result = {
       blockNumber,
       timestamp,
       blockHash: blockHash.toHuman(),
-      extrinsics: rawBlock.block.extrinsics.toHuman(),
+      extrinsics: parsedExtrinsics,
       events: parsedEvents,
       totalIssuance: rawTotalIssuance.toString(),
       ...pick(rawBlock.block.header.toHuman(), [
