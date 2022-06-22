@@ -1,8 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ApiPromise } from '@polkadot/api';
+import { Utils } from '../utils';
 import { ConfigService } from '../config/config.service';
 import { OpalApiProvider } from './providers/opal-api.provider';
-import { wait } from '../utils';
 
 @Injectable()
 export class PolkadotApiService {
@@ -14,6 +14,7 @@ export class PolkadotApiService {
     private readonly configService: ConfigService,
     private readonly logger: Logger,
     private readonly apiProvider: OpalApiProvider,
+    private readonly utils: Utils,
   ) {
     const wsUrl = this.configService.getOption('wsProviderUrl');
 
@@ -62,7 +63,7 @@ export class PolkadotApiService {
         stack: e.stack,
       });
       api.disconnect();
-      await wait(10000);
+      await this.utils.wait(10000);
       throw e;
     }
 
@@ -79,7 +80,7 @@ export class PolkadotApiService {
 
     api.disconnect();
 
-    await wait(10000);
+    await this.utils.wait(10000);
 
     return api;
   }
