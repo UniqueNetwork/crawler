@@ -40,8 +40,6 @@ export class BlockListenerService {
      * Extract amount value from event data.
      * The index of amount value depends on the event section and method values.
      * See: https://polkadot.js.org/docs/substrate/events
-     *
-     * todo: Need to get amount values from all the events that can have ammount values.
      */
     if (
       phase !== EventPhase.INITIALIZATION &&
@@ -90,7 +88,7 @@ export class BlockListenerService {
     return result;
   }
 
-  private parseExtrinsicRecord(rawRecord, index) {
+  private parseExtrinsicRecord(rawRecord, index: number) {
     const {
       method: { section, method },
       isSigned,
@@ -120,17 +118,16 @@ export class BlockListenerService {
         this.api.query.balances.totalIssuance.at(blockHash),
       ]);
 
-    const timestamp = this.getTimestampFromExtrinsics(
-      rawBlock.block.extrinsics,
-    );
+    const rawExtrinsics = rawBlock.block.extrinsics;
+    const timestamp = this.getTimestampFromExtrinsics(rawExtrinsics);
 
     const parsedEvents = (rawEvents as unknown as Array<unknown>).map(
       this.parseEventRecord.bind(this),
     );
 
-    const parsedExtrinsics = (
-      rawBlock.block.extrinsics as unknown as Array<unknown>
-    ).map(this.parseExtrinsicRecord.bind(this));
+    const parsedExtrinsics = (rawExtrinsics as unknown as Array<unknown>).map(
+      this.parseExtrinsicRecord.bind(this),
+    );
 
     const result = {
       blockNumber,
