@@ -7,7 +7,7 @@ import { BlockListenerService } from '../listeners/block-listener.service';
 export class CrawlerApiService {
   constructor(private readonly blockListenerService: BlockListenerService) {}
 
-  subscribeNewBlocks(): Promise<Observable<BlockData>> {
+  subscribeNewBlocks(): Observable<BlockData> {
     return this.blockListenerService.startListening();
   }
 

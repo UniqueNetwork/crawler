@@ -1,4 +1,4 @@
-import { Observable } from 'rxjs';
+import { filter, from, Observable, share, switchMap } from 'rxjs';
 import { pick } from 'lodash';
 
 import { Injectable, Logger } from '@nestjs/common';
@@ -166,11 +166,8 @@ export class BlockListenerService {
     };
   }
 
-  async startListening(): Promise<Observable<BlockData>> {
-    // Check api for readiness.
-    await this.apiService.isReady;
-
-    return new Observable((subscriber) => {
+  startListening(): Observable<BlockData> {
+    const blocksStream = new Observable<BlockData>((subscriber) => {
       this.api.rpc.chain.subscribeNewHeads(async (lastHeader) => {
         try {
           const blockNumber = lastHeader.number.toNumber();
@@ -188,6 +185,13 @@ export class BlockListenerService {
         }
       });
     });
+
+    // Check api for readiness.
+    return from(this.apiService.isReady).pipe(
+      filter((isReady) => isReady),
+      switchMap(() => blocksStream),
+      share(),
+    );
   }
 
   async getBlockByNumber(blockNumber: number): Promise<BlockData> {
