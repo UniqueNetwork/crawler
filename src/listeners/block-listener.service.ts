@@ -77,7 +77,7 @@ export class BlockListenerService {
       }
 
       if (amountIndex !== null) {
-        result = this.utils.getAmountValue(data[amountIndex].toString());
+        result = Utils.getAmountValue(data[amountIndex].toString());
       }
     }
 
@@ -92,7 +92,7 @@ export class BlockListenerService {
 
     const initialization = phase.toHuman() === EventPhase.INITIALIZATION;
 
-    const result = {
+    return {
       method,
       section,
       initialization,
@@ -102,8 +102,6 @@ export class BlockListenerService {
       data: rawData.toHuman(),
       phase: phase.toHuman(),
     };
-
-    return result;
   }
 
   private parseExtrinsicRecord(rawRecord, index: number): ExtrinsicData {
@@ -112,7 +110,7 @@ export class BlockListenerService {
       isSigned,
     } = rawRecord.toHuman();
 
-    const result = {
+    return {
       index,
       section,
       method,
@@ -121,8 +119,6 @@ export class BlockListenerService {
       // args: JSON.stringify(rawRecord.args), // todo: Do we really need these args? Alternative way to get args: rawRecord.method.toJSON().args
       hash: rawRecord.hash.toHex(),
     };
-
-    return result;
   }
 
   private async getBlockDataByNumber(blockNumber: number): Promise<BlockData> {
@@ -154,7 +150,7 @@ export class BlockListenerService {
       this.parseExtrinsicRecord.bind(this),
     );
 
-    const result = {
+    return {
       blockNumber: rawHeader.number.toNumber(),
       timestamp,
       blockHash: blockHash.toHuman(),
@@ -168,8 +164,6 @@ export class BlockListenerService {
       ]),
       ...pick(rawRuntimeVersion.toJSON(), ['specName', 'specVersion']),
     };
-
-    return result;
   }
 
   async startListening(): Promise<Observable<BlockData>> {
@@ -196,24 +190,10 @@ export class BlockListenerService {
     });
   }
 
-  async getBlockByNumber(blockNumber: number): Promise<Observable<BlockData>> {
+  async getBlockByNumber(blockNumber: number): Promise<BlockData> {
     // Check api for readiness.
     await this.apiService.isReady;
 
-    return new Observable((subscriber) => {
-      try {
-        this.logger.verbose(
-          `Getting block by number ${blockNumber}`,
-          'BlockListenerService',
-        );
-
-        this.getBlockDataByNumber(blockNumber).then((result) => {
-          subscriber.next(result);
-          subscriber.complete();
-        });
-      } catch (err) {
-        subscriber.error(err?.message);
-      }
-    });
+    return this.getBlockDataByNumber(blockNumber);
   }
 }

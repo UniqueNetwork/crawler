@@ -14,7 +14,6 @@ export class PolkadotApiService {
     private readonly configService: ConfigService,
     private readonly logger: Logger,
     private readonly apiProvider: OpalApiProvider,
-    private readonly utils: Utils,
   ) {
     const wsUrl = this.configService.getOption('wsProviderUrl');
 
@@ -63,7 +62,7 @@ export class PolkadotApiService {
         stack: e.stack,
       });
       api.disconnect();
-      await this.utils.wait(10000);
+      await Utils.wait(10000);
       throw e;
     }
 
@@ -80,7 +79,7 @@ export class PolkadotApiService {
 
     api.disconnect();
 
-    await this.utils.wait(10000);
+    await Utils.wait(10000);
 
     return api;
   }

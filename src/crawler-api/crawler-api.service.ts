@@ -11,7 +11,7 @@ export class CrawlerApiService {
     return this.blockListenerService.startListening();
   }
 
-  getBlockByNumber(blockNumber: number): Promise<Observable<BlockData>> {
+  getBlockByNumber(blockNumber: number): Promise<BlockData> {
     return this.blockListenerService.getBlockByNumber(blockNumber);
   }
 }

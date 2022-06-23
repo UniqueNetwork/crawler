@@ -8,7 +8,7 @@ export class ConfigService {
     @Inject(CONFIG_OPTIONS) private options: CrawlerApiServiceOptions,
   ) {}
 
-  getOption(opt: string) {
+  getOption(opt: keyof CrawlerApiServiceOptions) {
     return this.options[opt] || null;
   }
 }
