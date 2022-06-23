@@ -17,6 +17,7 @@ import {
   ExtrinsicMethod,
   ExtrinsicSection,
 } from '../types/extrinsic.types';
+import { BlockHash } from '@polkadot/types/interfaces';
 
 @Injectable()
 export class BlockListenerService {
@@ -124,9 +125,12 @@ export class BlockListenerService {
     return result;
   }
 
-  private async getBlockData(blockNumber: number): Promise<BlockData> {
+  private async getBlockDataByNumber(blockNumber: number): Promise<BlockData> {
     const blockHash = await this.api.rpc.chain.getBlockHash(blockNumber);
+    return this.getBlockDataByHash(blockHash);
+  }
 
+  private async getBlockDataByHash(blockHash: BlockHash): Promise<BlockData> {
     const [rawRuntimeVersion, rawBlock, apiAt] = await Promise.all([
       this.api.runtimeVersion,
       this.api.rpc.chain.getBlock(blockHash),
@@ -138,7 +142,7 @@ export class BlockListenerService {
       apiAt.query.balances.totalIssuance(),
     ]);
 
-    const rawExtrinsics = rawBlock.block.extrinsics;
+    const { header: rawHeader, extrinsics: rawExtrinsics } = rawBlock.block;
 
     const timestamp = this.getTimestampFromExtrinsics(rawExtrinsics);
 
@@ -151,13 +155,13 @@ export class BlockListenerService {
     );
 
     const result = {
-      blockNumber,
+      blockNumber: rawHeader.toJSON().number,
       timestamp,
       blockHash: blockHash.toHuman(),
       extrinsics: parsedExtrinsics,
       events: parsedEvents,
       totalIssuance: rawTotalIssuance.toString(),
-      ...pick(rawBlock.block.header.toHuman(), [
+      ...pick(rawHeader.toHuman(), [
         'stateRoot',
         'extrinsicsRoot',
         'parentHash',
@@ -173,16 +177,16 @@ export class BlockListenerService {
     await this.apiService.isReady;
 
     return new Observable((subscriber) => {
-      this.api.rpc.chain.subscribeNewHeads(async (header) => {
+      this.api.rpc.chain.subscribeNewHeads(async (lastHeader) => {
         try {
-          const blockNumber = header.number.toNumber();
+          const blockNumber = lastHeader.number.toNumber();
 
           this.logger.verbose(
             `Got new block ${blockNumber}`,
             'BlockListenerService',
           );
 
-          const result = await this.getBlockData(blockNumber);
+          const result = await this.getBlockDataByHash(lastHeader.hash);
 
           subscriber.next(result);
         } catch (err) {
@@ -203,7 +207,7 @@ export class BlockListenerService {
           'BlockListenerService',
         );
 
-        this.getBlockData(blockNumber).then((result) => {
+        this.getBlockDataByNumber(blockNumber).then((result) => {
           subscriber.next(result);
           subscriber.complete();
         });
