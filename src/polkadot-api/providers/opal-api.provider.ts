@@ -25,10 +25,6 @@ export class OpalApiProvider {
     }
   }
 
-  get isReady() {
-    return this.provider.isReady;
-  }
-
   getApi() {
     return this.api;
   }
