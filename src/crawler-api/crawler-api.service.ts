@@ -1,35 +1,17 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { interval, map, Observable, take } from 'rxjs';
-import { RandomService } from '../random/random.service';
-import {
-  CrawlerApiServiceOptions,
-  defaultCrawlerServiceOptions,
-} from './crawler-api-service-options';
+import { Injectable } from '@nestjs/common';
+import { Observable } from 'rxjs';
+import { BlockData } from '../types/block.types';
+import { BlockListenerService } from '../listeners/block-listener.service';
 
 @Injectable()
 export class CrawlerApiService {
-  private options: CrawlerApiServiceOptions;
+  constructor(private readonly blockListenerService: BlockListenerService) {}
 
-  constructor(
-    options: Partial<CrawlerApiServiceOptions>,
-    private readonly logger: Logger,
-    private readonly randomService: RandomService,
-  ) {
-    this.options = { ...defaultCrawlerServiceOptions, ...options };
-
-    // todo: Init chain connection
-    // todo: and pass this.api object into dependencies?
-    // todo: I don't like this kind of initialiszation.
-    this.randomService.init(options, logger);
+  subscribeNewBlocks(): Observable<BlockData> {
+    return this.blockListenerService.startListening();
   }
 
-  subscribeNewBlocks(): Observable<number> {
-    this.logger.log('subscribeNewBlocks()');
-
-    // todo: Create observable for blocks listening.
-    return interval(1000).pipe(
-      take(10),
-      map(() => this.randomService.generate()),
-    );
+  getBlockByNumber(blockNumber: number): Promise<BlockData> {
+    return this.blockListenerService.getBlockByNumber(blockNumber);
   }
 }
