@@ -127,10 +127,10 @@ export class BlockListenerService {
   private async getBlockData(blockNumber: number): Promise<BlockData> {
     const blockHash = await this.api.rpc.chain.getBlockHash(blockNumber);
 
-    const [rawBlock, apiAt, rawRuntimeVersion] = await Promise.all([
+    const [rawRuntimeVersion, rawBlock, apiAt] = await Promise.all([
+      this.api.runtimeVersion,
       this.api.rpc.chain.getBlock(blockHash),
       this.api.at(blockHash),
-      this.api.rpc.state.getRuntimeVersion(blockHash),
     ]);
 
     const [rawEvents, rawTotalIssuance] = await Promise.all([
