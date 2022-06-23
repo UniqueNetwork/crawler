@@ -1,9 +1,22 @@
-import { Injectable, Logger } from '@nestjs/common';
 import { Observable } from 'rxjs';
-import { PolkadotApiService } from '../polkadot-api/polkadot-api.service';
 import { pick } from 'lodash';
-import { EventMethod, EventPhase, EventSection } from '../constants';
+
+import { Injectable, Logger } from '@nestjs/common';
+import { PolkadotApiService } from '../polkadot-api/polkadot-api.service';
 import { Utils } from '../utils';
+
+import { BlockData } from '../types/block.types';
+import {
+  EventData,
+  EventMethod,
+  EventPhase,
+  EventSection,
+} from '../types/event.types';
+import {
+  ExtrinsicData,
+  ExtrinsicMethod,
+  ExtrinsicSection,
+} from '../types/extrinsic.types';
 
 @Injectable()
 export class BlockListenerService {
@@ -18,13 +31,17 @@ export class BlockListenerService {
     return this.apiService.api;
   }
 
-  private getTimestampFromExtrinsics(extrinsics) {
+  private getTimestampFromExtrinsics(extrinsics): number {
     let timestamp = 0;
 
     for (const extrinsic of extrinsics) {
-      const { method } = extrinsic;
-      if (method.section === 'timestamp' && method.method === 'set') {
-        timestamp = method.toJSON().args.now;
+      const { method: methodStruct } = extrinsic;
+      const { section, method } = methodStruct;
+      if (
+        section === ExtrinsicSection.TIMESTAMP &&
+        method === ExtrinsicMethod.SET
+      ) {
+        timestamp = methodStruct.toJSON().args.now;
         break;
       }
     }
@@ -32,8 +49,8 @@ export class BlockListenerService {
     return timestamp;
   }
 
-  private parseEventAmount({ phase, method, data, section }) {
-    let result = '0';
+  private parseEventAmount({ phase, method, data, section }): string | null {
+    let result = null;
     let amountIndex = null;
 
     /*
@@ -66,29 +83,29 @@ export class BlockListenerService {
     return result;
   }
 
-  private parseEventRecord(rawRecord) {
+  private parseEventRecord(rawRecord): EventData {
     const {
       event: { index, method, section, data: rawData },
       phase,
     } = rawRecord;
 
-    const phaseToHuman = phase.toHuman();
+    const initialization = phase.toHuman() === EventPhase.INITIALIZATION;
 
     const result = {
       method,
       section,
-      index: index.toHuman(),
-      phase: phaseToHuman,
-      data: rawData.toHuman(),
-      extrinsicIndex:
-        typeof phaseToHuman === 'object' ? phase.toJSON().applyExtrinsic : null,
+      initialization,
+      extrinsicIndex: initialization ? null : phase.toJSON().applyExtrinsic,
       amount: this.parseEventAmount({ phase, method, section, data: rawData }),
+      index: index.toHuman(),
+      data: rawData.toHuman(),
+      phase: phase.toHuman(),
     };
 
     return result;
   }
 
-  private parseExtrinsicRecord(rawRecord, index: number) {
+  private parseExtrinsicRecord(rawRecord, index: number): ExtrinsicData {
     const {
       method: { section, method },
       isSigned,
@@ -100,25 +117,29 @@ export class BlockListenerService {
       method,
       isSigned,
       signer: isSigned ? rawRecord.signer.toString() : null,
-      // args: JSON.stringify(rawRecord.args), // todo: Do we really need these args?
+      // args: JSON.stringify(rawRecord.args), // todo: Do we really need these args? Alternative way to get args: rawRecord.method.toJSON().args
       hash: rawRecord.hash.toHex(),
     };
 
     return result;
   }
 
-  private async getBlockData(blockNumber: number) {
+  private async getBlockData(blockNumber: number): Promise<BlockData> {
     const blockHash = await this.api.rpc.chain.getBlockHash(blockNumber);
 
-    const [rawBlock, rawRuntimeVersion, rawEvents, rawTotalIssuance] =
-      await Promise.all([
-        this.api.rpc.chain.getBlock(blockHash),
-        this.api.rpc.state.getRuntimeVersion(blockHash),
-        this.api.query.system.events.at(blockHash),
-        this.api.query.balances.totalIssuance.at(blockHash),
-      ]);
+    const [rawBlock, apiAt, rawRuntimeVersion] = await Promise.all([
+      this.api.rpc.chain.getBlock(blockHash),
+      this.api.at(blockHash),
+      this.api.rpc.state.getRuntimeVersion(blockHash),
+    ]);
+
+    const [rawEvents, rawTotalIssuance] = await Promise.all([
+      apiAt.query.system.events(),
+      apiAt.query.balances.totalIssuance(),
+    ]);
 
     const rawExtrinsics = rawBlock.block.extrinsics;
+
     const timestamp = this.getTimestampFromExtrinsics(rawExtrinsics);
 
     const parsedEvents = (rawEvents as unknown as Array<unknown>).map(
@@ -147,7 +168,7 @@ export class BlockListenerService {
     return result;
   }
 
-  async startListening(): Promise<Observable<unknown>> {
+  async startListening(): Promise<Observable<BlockData>> {
     // Check api for readiness.
     await this.apiService.isReady;
 
@@ -171,7 +192,7 @@ export class BlockListenerService {
     });
   }
 
-  async getBlockByNumber(blockNumber: number) {
+  async getBlockByNumber(blockNumber: number): Promise<Observable<BlockData>> {
     // Check api for readiness.
     await this.apiService.isReady;
 
