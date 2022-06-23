@@ -155,7 +155,7 @@ export class BlockListenerService {
     );
 
     const result = {
-      blockNumber: rawHeader.toJSON().number,
+      blockNumber: rawHeader.number.toNumber(),
       timestamp,
       blockHash: blockHash.toHuman(),
       extrinsics: parsedExtrinsics,
