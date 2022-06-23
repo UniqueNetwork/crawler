@@ -24,7 +24,7 @@ export type EventData = {
   initialization: boolean;
   extrinsicIndex: number | null;
   amount: null | string;
-  index: string;
-  phase: EventPhase | object;
-  data: object;
+  index?: string;
+  phase?: EventPhase | object;
+  data?: object;
 };
