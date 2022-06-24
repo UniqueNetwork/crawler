@@ -2,6 +2,7 @@ import { filter, from, Observable, share, switchMap } from 'rxjs';
 import { pick } from 'lodash';
 
 import { Injectable, Logger } from '@nestjs/common';
+import { BlockHash, EventRecord } from '@polkadot/types/interfaces';
 import { PolkadotApiService } from '../polkadot-api/polkadot-api.service';
 import { Utils } from '../utils';
 
@@ -17,7 +18,6 @@ import {
   ExtrinsicMethod,
   ExtrinsicSection,
 } from '../types/extrinsic.types';
-import { BlockHash } from '@polkadot/types/interfaces';
 
 @Injectable()
 export class BlockListenerService {
@@ -83,25 +83,28 @@ export class BlockListenerService {
     return result;
   }
 
-  private parseEventRecord(rawRecord): EventData {
+  private parseEventRecord(rawRecord: EventRecord): EventData {
     const {
       event: { index, method, section, data: rawData },
       phase,
     } = rawRecord;
 
-    const initialization = phase.toString() === EventPhase.INITIALIZATION;
+    const initialization = phase.isInitialization;
+    const amount = initialization
+      ? null
+      : this.parseEventAmount({ method, section, data: rawData });
 
     return {
-      method,
-      section,
+      method: method.toString() as EventMethod,
+      section: section.toString() as EventSection,
       initialization,
-      extrinsicIndex: initialization ? null : phase.toJSON().applyExtrinsic,
-      amount: initialization
-        ? null
-        : this.parseEventAmount({ method, section, data: rawData }),
-      index: index.toHuman(),
-      data: rawData.toHuman(),
-      phase: phase.toHuman(),
+      extrinsicIndex: phase.isApplyExtrinsic
+        ? phase.asApplyExtrinsic.toNumber()
+        : null,
+      amount,
+      index: index.toString(),
+      data: rawData.toHuman() as object,
+      phase: phase.toHuman() as EventPhase | object,
     };
   }
 
