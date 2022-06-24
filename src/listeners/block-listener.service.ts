@@ -50,7 +50,7 @@ export class BlockListenerService {
     return timestamp;
   }
 
-  private parseEventAmount({ phase, method, data, section }): string | null {
+  private parseEventAmount({ method, data, section }): string | null {
     let result = null;
     let amountIndex = null;
 
@@ -60,7 +60,6 @@ export class BlockListenerService {
      * See: https://polkadot.js.org/docs/substrate/events
      */
     if (
-      phase !== EventPhase.INITIALIZATION &&
       [
         EventMethod.TRANSFER,
         EventMethod.DEPOSIT,
@@ -90,14 +89,16 @@ export class BlockListenerService {
       phase,
     } = rawRecord;
 
-    const initialization = phase.toHuman() === EventPhase.INITIALIZATION;
+    const initialization = phase.toString() === EventPhase.INITIALIZATION;
 
     return {
       method,
       section,
       initialization,
       extrinsicIndex: initialization ? null : phase.toJSON().applyExtrinsic,
-      amount: this.parseEventAmount({ phase, method, section, data: rawData }),
+      amount: initialization
+        ? null
+        : this.parseEventAmount({ method, section, data: rawData }),
       index: index.toHuman(),
       data: rawData.toHuman(),
       phase: phase.toHuman(),
