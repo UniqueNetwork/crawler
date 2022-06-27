@@ -1,9 +1,13 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { UniqueSchema } from '@unique-nft/api';
 import { PolkadotApiService } from '../polkadot-api/polkadot-api.service';
 import { Utils } from '../utils';
 
-import { CollectionData } from '../types/collection.types';
+import {
+  CollectionData,
+  CollectionLimitsField,
+  CollectionModeField,
+  CollectionSponsorshipField,
+} from '../types/collection.types';
 
 @Injectable()
 export class CollectionListenerService {
@@ -18,23 +22,38 @@ export class CollectionListenerService {
     return this.apiService.api;
   }
 
+  private processLimitsField(rawLimits): CollectionLimitsField {
+    const humanLimits = rawLimits.toJSON();
+
+    return {
+      ...humanLimits,
+      sponsoredDataRateLimit: Utils.stringOrJson(
+        rawLimits.sponsoredDataRateLimit,
+      ),
+    };
+  }
+
   private processCollectionData(
     collectionId,
     rawCollection,
     rawLimits,
   ): CollectionData {
-    console.log(rawCollection.toHuman());
-
-    const collectionHuman = rawCollection.toHuman();
-    const decodedCollection = UniqueSchema.decode.collectionSchema(
-      collectionHuman.properties,
-    );
-
-    console.log(decodedCollection);
-
     return {
       collectionId,
-      name: 'Some name',
+      mode: Utils.stringOrJson(rawCollection.mode) as CollectionModeField,
+      name: Utils.vecToString(rawCollection.name),
+      description: Utils.vecToString(rawCollection.description),
+      owner: rawCollection.owner.toString(),
+      tokenPrefix: rawCollection.tokenPrefix.toHuman(),
+      sponsorship: Utils.stringOrJson(
+        rawCollection.sponsorship,
+      ) as CollectionSponsorshipField,
+      permissions: rawCollection.permissions.toHuman(),
+      tokenPropertyPermissions:
+        rawCollection.tokenPropertyPermissions.toHuman(),
+      properties: rawCollection.properties.toHuman(),
+      readOnly: rawCollection.readOnly.toHuman(),
+      limits: this.processLimitsField(rawLimits),
     };
   }
 
