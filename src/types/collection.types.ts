@@ -53,3 +53,9 @@ export type CollectionData = {
   limits: object;
   readOnly: boolean;
 };
+
+export type CollectionStats = {
+  created: number;
+  destroyed: number;
+  alive: number;
+};

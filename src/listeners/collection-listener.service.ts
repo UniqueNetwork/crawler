@@ -78,4 +78,8 @@ export class CollectionListenerService {
       rawLimitsOption.value,
     );
   }
+
+  async getCollectionStats() {
+    return this.api.rpc.unique.collectionStats();
+  }
 }
